@@ -6,11 +6,6 @@ Cosmo-Check is a browser-based prototype that detects early-warning signs of cos
 Run the full application here:  
 ➡️ https://aishwaryaarizona.github.io/HW3-Digital-Epidemiology/
 
-📄 How to Run Locally  
-Download or clone this repository.
-
-Code of the app is as below : 
-
 <head>
   <meta charset="UTF-8" />
   <title>Cosmo-Check</title>
