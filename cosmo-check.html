@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cosmo-Check</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Tailwind via CDN (for prototype use) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gray-50">
+  <div id="root"></div>
+
+  <!-- React + ReactDOM + Babel (for JSX in browser) -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // Simple emoji-based icon components (replace lucide-react)
+    const AlertTriangle = ({ className }) => <span className={className}>⚠️</span>;
+    const CheckCircle = ({ className }) => <span className={className}>✅</span>;
+    const AlertCircle = ({ className }) => <span className={className}>⚠️</span>;
+    const TrendingUp = ({ className }) => <span className={className}>📈</span>;
+    const Plus = ({ className }) => <span className={className}>＋</span>;
+    const Search = ({ className }) => <span className={className}>🔍</span>;
+    const Send = ({ className }) => <span className={className}>📤</span>;
+    const Shield = ({ className }) => <span className={className}>🛡️</span>;
+    const Users = ({ className }) => <span className={className}>👥</span>;
+    const Bell = ({ className }) => <span className={className}>🔔</span>;
+    const Activity = ({ className }) => <span className={className}>📊</span>;
+    const Droplet = ({ className }) => <span className={className}>💧</span>;
+    const Sparkles = ({ className }) => <span className={className}>✨</span>;
+    const Pipette = ({ className }) => <span className={className}>🧪</span>;
+    const Flame = ({ className }) => <span className={className}>🔥</span>;
+    const Beaker = ({ className }) => <span className={className}>⚗️</span>;
+    const Pill = ({ className }) => <span className={className}>💊</span>;
+    const Boxes = ({ className }) => <span className={className}>📦</span>;
+    const FlaskConical = ({ className }) => <span className={className}>⚗️</span>;
+    const ShoppingBasket = ({ className }) => <span className={className}>🛒</span>;
+
+    const CosmoCheckApp = () => {
+      const [activeTab, setActiveTab] = useState('home');
+      const [trends, setTrends] = useState([]);
+      const [brands, setBrands] = useState([]);
+      const [selectedBrand, setSelectedBrand] = useState(null);
+      const [userReports, setUserReports] = useState([]);
+      const [checkInput, setCheckInput] = useState('');
+      const [selectedTrend, setSelectedTrend] = useState(null);
+      const [reportForm, setReportForm] = useState({
+        trendName: '',
+        brandName: '',
+        symptoms: [],
+        severity: 'mild',
+        description: ''
+      });
+
+      useEffect(() => {
+        const mockBrands = [
+          { id: 1, name: 'The Ordinary', logo: '🧪', totalReports: 234, avgRiskScore: 32, status: 'safe', trendCount: 8 },
+          { id: 2, name: 'CeraVe', logo: '💙', totalReports: 89, avgRiskScore: 15, status: 'safe', trendCount: 5 },
+          { id: 3, name: 'TikTok DIY', logo: '🎥', totalReports: 567, avgRiskScore: 73, status: 'warning', trendCount: 15 },
+          { id: 4, name: 'Drunk Elephant', logo: '🐘', totalReports: 156, avgRiskScore: 28, status: 'safe', trendCount: 6 },
+          { id: 5, name: 'La Roche-Posay', logo: '💧', totalReports: 43, avgRiskScore: 12, status: 'safe', trendCount: 4 },
+          { id: 6, name: 'Homemade Recipes', logo: '🏠', totalReports: 423, avgRiskScore: 68, status: 'warning', trendCount: 12 }
+        ];
+
+        const mockTrends = [
+          {
+            id: 1,
+            name: 'Skin Cycling Routine',
+            brandId: null,
+            brandName: 'General Practice',
+            icon: 'routine',
+            riskScore: 25,
+            status: 'safe',
+            reports: 12,
+            lastUpdated: '2 hours ago',
+            description: 'A structured skincare routine alternating actives and recovery nights',
+            commonSymptoms: ['Mild dryness', 'Initial purging'],
+            recommendations: 'Start slowly and monitor your skin barrier'
+          },
+          {
+            id: 2,
+            name: 'Niacinamide + AHA/BHA Peeling Solution',
+            brandId: 1,
+            brandName: 'The Ordinary',
+            icon: 'serum',
+            riskScore: 71,
+            status: 'warning',
+            reports: 98,
+            lastUpdated: '30 min ago',
+            description: 'Using Niacinamide serum immediately with AHA/BHA peeling solution',
+            commonSymptoms: ['Chemical burns', 'Severe redness', 'Peeling'],
+            recommendations: 'NEVER use together - wait 30 min between products or use on different days'
+          },
+          {
+            id: 3,
+            name: 'Buffet + Copper Peptides Layering',
+            brandId: 1,
+            brandName: 'The Ordinary',
+            icon: 'serum',
+            riskScore: 58,
+            status: 'caution',
+            reports: 67,
+            lastUpdated: '1 hour ago',
+            description: 'Layering Buffet serum with Copper Peptides',
+            commonSymptoms: ['Irritation', 'Reduced efficacy', 'Breakouts'],
+            recommendations: 'Avoid using together - copper peptides conflict with most actives'
+          },
+          {
+            id: 4,
+            name: 'AM Cleanser',
+            brandId: 2,
+            brandName: 'CeraVe',
+            icon: 'cleanser',
+            riskScore: 8,
+            status: 'safe',
+            reports: 23,
+            lastUpdated: '5 hours ago',
+            description: 'Using CeraVe AM Facial Moisturizing Lotion',
+            commonSymptoms: ['Rare mild reactions'],
+            recommendations: 'Generally well-tolerated for most skin types'
+          },
+          {
+            id: 5,
+            name: 'DIY Retinol + Vitamin C Mix',
+            brandId: 3,
+            brandName: 'TikTok DIY',
+            icon: 'diy',
+            riskScore: 89,
+            status: 'warning',
+            reports: 187,
+            lastUpdated: '15 min ago',
+            description: 'Mixing retinol and vitamin C serums in the same application',
+            commonSymptoms: ['Chemical burns', 'Severe irritation', 'Peeling'],
+            recommendations: 'DO NOT MIX: Use separately, preferably at different times of day'
+          },
+          {
+            id: 6,
+            name: 'Ice Facial Challenge',
+            brandId: 3,
+            brandName: 'TikTok DIY',
+            icon: 'diy',
+            riskScore: 64,
+            status: 'caution',
+            reports: 142,
+            lastUpdated: '45 min ago',
+            description: 'Applying ice directly to face for extended periods',
+            commonSymptoms: ['Redness', 'Broken capillaries', 'Sensitivity'],
+            recommendations: 'Wrap ice in cloth, limit exposure to 30 seconds'
+          },
+          {
+            id: 7,
+            name: 'Lemon Juice + Baking Soda Mask',
+            brandId: 6,
+            brandName: 'Homemade Recipes',
+            icon: 'mask',
+            riskScore: 82,
+            status: 'warning',
+            reports: 213,
+            lastUpdated: '20 min ago',
+            description: 'DIY face mask with lemon juice and baking soda',
+            commonSymptoms: ['Chemical burns', 'Severe irritation', 'Hyperpigmentation'],
+            recommendations: 'DANGEROUS: pH imbalance can severely damage skin barrier'
+          },
+          {
+            id: 8,
+            name: 'Protini Polypeptide Cream',
+            brandId: 4,
+            brandName: 'Drunk Elephant',
+            icon: 'moisturizer',
+            riskScore: 22,
+            status: 'safe',
+            reports: 34,
+            lastUpdated: '3 hours ago',
+            description: 'Using Protini moisturizer daily',
+            commonSymptoms: ['Mild breakouts (oily skin)'],
+            recommendations: 'Generally safe, may be too rich for very oily skin'
+          },
+          {
+            id: 9,
+            name: 'Toothpaste Spot Treatment',
+            brandId: 6,
+            brandName: 'Homemade Recipes',
+            icon: 'treatment',
+            riskScore: 76,
+            status: 'warning',
+            reports: 156,
+            lastUpdated: '1 hour ago',
+            description: 'Using toothpaste as acne spot treatment',
+            commonSymptoms: ['Chemical burns', 'Irritation', 'Scarring'],
+            recommendations: 'DO NOT USE: Contains harsh ingredients not meant for skin'
+          },
+          {
+            id: 10,
+            name: 'Toleriane Double Repair Face Moisturizer',
+            brandId: 5,
+            brandName: 'La Roche-Posay',
+            icon: 'moisturizer',
+            riskScore: 11,
+            status: 'safe',
+            reports: 28,
+            lastUpdated: '4 hours ago',
+            description: 'Daily use of Toleriane moisturizer',
+            commonSymptoms: ['Very rare reactions'],
+            recommendations: 'Dermatologist-tested and well-tolerated'
+          }
+        ];
+
+        setBrands(mockBrands);
+        setTrends(mockTrends);
+      }, []);
+
+      const getProductIcon = (iconType) => {
+        switch (iconType) {
+          case 'serum': return <Pipette className="w-5 h-5" />;
+          case 'cleanser': return <Droplet className="w-5 h-5" />;
+          case 'moisturizer': return <Boxes className="w-5 h-5" />;
+          case 'mask': return <FlaskConical className="w-5 h-5" />;
+          case 'treatment': return <Pill className="w-5 h-5" />;
+          case 'diy': return <Beaker className="w-5 h-5" />;
+          case 'routine': return <Activity className="w-5 h-5" />;
+          default: return <Sparkles className="w-5 h-5" />;
+        }
+      };
+
+      const getRiskColor = (status) => {
+        switch (status) {
+          case 'safe': return 'text-green-600 bg-green-50 border-green-200';
+          case 'caution': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
+          case 'warning': return 'text-red-600 bg-red-50 border-red-200';
+          default: return 'text-gray-600 bg-gray-50 border-gray-200';
+        }
+      };
+
+      const getRiskIcon = (status) => {
+        switch (status) {
+          case 'safe': return <CheckCircle className="w-5 h-5" />;
+          case 'caution': return <AlertCircle className="w-5 h-5" />;
+          case 'warning': return <AlertTriangle className="w-5 h-5" />;
+          default: return <Search className="w-5 h-5" />;
+        }
+      };
+
+      const handleCheckTrend = () => {
+        if (!checkInput.trim()) return;
+
+        const found = trends.find(t =>
+          t.name.toLowerCase().includes(checkInput.toLowerCase())
+        );
+
+        if (found) {
+          setSelectedTrend(found);
+        } else {
+          setSelectedTrend({
+            id: 'new',
+            name: checkInput,
+            riskScore: 0,
+            status: 'unknown',
+            reports: 0,
+            description: 'No data available yet. Be the first to report!',
+            commonSymptoms: [],
+            recommendations: 'Proceed with caution and monitor for reactions'
+          });
+        }
+      };
+
+      const handleSymptomToggle = (symptom) => {
+        setReportForm(prev => ({
+          ...prev,
+          symptoms: prev.symptoms.includes(symptom)
+            ? prev.symptoms.filter(s => s !== symptom)
+            : [...prev.symptoms, symptom]
+        }));
+      };
+
+      const handleSubmitReport = () => {
+        const newReport = {
+          id: Date.now(),
+          ...reportForm,
+          timestamp: new Date().toISOString(),
+          userId: 'user-' + Math.random().toString(36).substr(2, 9)
+        };
+
+        setUserReports(prev => [newReport, ...prev]);
+        setReportForm({
+          trendName: '',
+          brandName: '',
+          symptoms: [],
+          severity: 'mild',
+          description: ''
+        });
+
+        alert('Thank you for your report! This helps keep the community safe.');
+        setActiveTab('trends');
+      };
+
+      const getBrandTrends = (brandId) => {
+        return trends.filter(t => t.brandId === brandId);
+      };
+
+      const handleBrandClick = (brand) => {
+        setSelectedBrand(brand);
+        setActiveTab('brand-detail');
+      };
+
+      const symptomOptions = [
+        'Redness', 'Burning sensation', 'Itching', 'Peeling',
+        'Breakouts', 'Dryness', 'Hyperpigmentation', 'Swelling',
+        'Chemical burn', 'Sensitivity', 'Rash', 'Scarring'
+      ];
+
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-teal-50">
+          {/* Header */}
+          <div className="bg-white shadow-sm border-b border-blue-100">
+            <div className="max-w-4xl mx-auto px-4 py-4">
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={() => setActiveTab('home')}
+                  className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+                >
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center shadow-md">
+                    <ShoppingBasket className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h1 className="text-xl font-bold text-gray-900">Cosmo-Check</h1>
+                    <p className="text-xs text-gray-500">AI-Powered Beauty Safety</p>
+                  </div>
+                </button>
+                <div className="text-right">
+                  <div className="text-sm font-semibold text-purple-600">{trends.length} Trends</div>
+                  <div className="text-xs text-gray-500">{userReports.length} Reports</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Navigation */}
+          <div className="max-w-4xl mx-auto px-4 pt-4">
+            <div className="flex gap-2 bg-white rounded-xl p-1 shadow-sm border border-blue-100">
+              <button
+                onClick={() => setActiveTab('home')}
+                className={`flex-1 py-2 px-3 rounded-lg font-medium transition-all text-sm ${
+                  activeTab === 'home'
+                    ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md'
+                    : 'text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                <ShoppingBasket className="w-4 h-4 inline mr-2" />
+                Home
+              </button>
+              <button
+                onClick={() => setActiveTab('check')}
+                className={`flex-1 py-2 px-3 rounded-lg font-medium transition-all text-sm ${
+                  activeTab === 'check'
+                    ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md'
+                    : 'text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                <Search className="w-4 h-4 inline mr-2" />
+                Check
+              </button>
+              <button
+                onClick={() => setActiveTab('brands')}
+                className={`flex-1 py-2 px-3 rounded-lg font-medium transition-all text-sm ${
+                  activeTab === 'brands' || activeTab === 'brand-detail'
+                    ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md'
+                    : 'text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                <Sparkles className="w-4 h-4 inline mr-2" />
+                Brands
+              </button>
+              <button
+                onClick={() => setActiveTab('report')}
+                className={`flex-1 py-2 px-3 rounded-lg font-medium transition-all text-sm ${
+                  activeTab === 'report'
+                    ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md'
+                    : 'text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                <Plus className="w-4 h-4 inline mr-2" />
+                Report
+              </button>
+              <button
+                onClick={() => setActiveTab('trends')}
+                className={`flex-1 py-2 px-3 rounded-lg font-medium transition-all text-sm ${
+                  activeTab === 'trends'
+                    ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md'
+                    : 'text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                <Bell className="w-4 h-4 inline mr-2" />
+                Alerts
+              </button>
+            </div>
+          </div>
+
+          {/* Content */}
+          <div className="max-w-4xl mx-auto px-4 py-6">
+            {/* Home Tab */}
+            {activeTab === 'home' && (
+              <div className="space-y-6">
+                {/* Welcome Hero Section */}
+                <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-8 border border-blue-100 shadow-sm">
+                  <div className="flex items-start gap-4 mb-6">
+                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center shadow-lg">
+                      <ShoppingBasket className="w-9 h-9 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                        Welcome to Cosmo-Check
+                      </h1>
+                      <p className="text-lg text-gray-700 leading-relaxed">
+                        Real-time detection of cosmetic harm from viral trends
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="bg-white bg-opacity-60 rounded-xl p-4 backdrop-blur-sm">
+                    <p className="text-gray-700 leading-relaxed">
+                      Join thousands protecting their skin with AI-powered safety monitoring. We
+                      combine crowdsourced reports with scientific analysis to identify dangerous
+                      beauty trends before they cause widespread harm.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Quick Stats */}
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="bg-white rounded-xl p-4 border border-blue-100 shadow-sm">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Activity className="w-5 h-5 text-blue-500" />
+                      <span className="text-sm font-medium text-gray-600">Trends Tracked</span>
+                    </div>
+                    <div className="text-2xl font-bold text-gray-900">{trends.length}</div>
+                  </div>
+
+                  <div className="bg-white rounded-xl p-4 border border-purple-100 shadow-sm">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Users className="w-5 h-5 text-purple-500" />
+                      <span className="text-sm font-medium text-gray-600">Reports Filed</span>
+                    </div>
+                    <div className="text-2xl font-bold text-gray-900">
+                      {trends.reduce((sum, t) => sum + t.reports, 0)}
+                    </div>
+                  </div>
+
+                  <div className="bg-white rounded-xl p-4 border border-teal-100 shadow-sm">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Sparkles className="w-5 h-5 text-teal-500" />
+                      <span className="text-sm font-medium text-gray-600">Brands Monitored</span>
+                    </div>
+                    <div className="text-2xl font-bold text-gray-900">{brands.length}</div>
+                  </div>
+                </div>
+
+                {/* Quick Actions */}
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button
+                      onClick={() => setActiveTab('check')}
+                      className="bg-white rounded-xl p-6 border-2 border-blue-200 hover:border-blue-400 hover:shadow-lg transition-all text-left group"
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center group-hover:bg-blue-500 transition-colors">
+                          <Search className="w-6 h-6 text-blue-600 group-hover:text-white transition-colors" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-lg font-bold text-gray-900 mb-1">Check Trend</h3>
+                          <p className="text-sm text-gray-600 leading-relaxed">
+                            Search for any beauty trend or product to see real-time safety scores
+                            and community reports
+                          </p>
+                        </div>
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() => setActiveTab('brands')}
+                      className="bg-white rounded-xl p-6 border-2 border-purple-200 hover:border-purple-400 hover:shadow-lg transition-all text-left group"
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center group-hover:bg-purple-500 transition-colors">
+                          <Sparkles className="w-6 h-6 text-purple-600 group-hover:text-white transition-colors" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-lg font-bold text-gray-900 mb-1">Brands</h3>
+                          <p className="text-sm text-gray-600 leading-relaxed">
+                            Browse cosmetic brands and see safety ratings based on thousands of
+                            verified reports
+                          </p>
+                        </div>
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() => setActiveTab('report')}
+                      className="bg-white rounded-xl p-6 border-2 border-rose-200 hover:border-rose-400 hover:shadow-lg transition-all text-left group"
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 bg-rose-100 rounded-xl flex items-center justify-center group-hover:bg-rose-500 transition-colors">
+                          <Plus className="w-6 h-6 text-rose-600 group-hover:text-white transition-colors" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-lg font-bold text-gray-900 mb-1">Report Harm</h3>
+                          <p className="text-sm text-gray-600 leading-relaxed">
+                            Experienced a reaction? Help protect others by anonymously reporting
+                            your symptoms
+                          </p>
+                        </div>
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() => setActiveTab('trends')}
+                      className="bg-white rounded-xl p-6 border-2 border-amber-200 hover:border-amber-400 hover:shadow-lg transition-all text-left group"
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center group-hover:bg-amber-500 transition-colors">
+                          <Bell className="w-6 h-6 text-amber-600 group-hover:text-white transition-colors" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-lg font-bold text-gray-900 mb-1">Community Alerts</h3>
+                          <p className="text-sm text-gray-600 leading-relaxed">
+                            View active warnings and trending safety concerns from the community
+                          </p>
+                        </div>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Active Warnings */}
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-semibold text-gray-900">⚠️ Active Safety Warnings</h2>
+                    <button
+                      onClick={() => setActiveTab('trends')}
+                      className="text-sm text-purple-600 hover:text-purple-700 font-medium"
+                    >
+                      View All →
+                    </button>
+                  </div>
+
+                  <div className="space-y-3">
+                    {trends
+                      .filter(t => t.status === 'warning')
+                      .slice(0, 3)
+                      .map(trend => (
+                        <div
+                          key={trend.id}
+                          onClick={() => {
+                            setSelectedTrend(trend);
+                            setActiveTab('check');
+                          }}
+                          className="bg-red-50 border-2 border-red-200 rounded-xl p-4 cursor-pointer hover:shadow-md transition-all"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                              {getProductIcon(trend.icon)}
+                            </div>
+                            <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0" />
+                            <div className="flex-1">
+                              <h3 className="font-semibold text-red-900">{trend.name}</h3>
+                              <p className="text-sm text-red-700">
+                                {trend.reports} reports • Risk Score: {trend.riskScore}
+                              </p>
+                            </div>
+                            <div className="text-2xl font-bold text-red-600">{trend.riskScore}</div>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+
+                {/* Trust Indicators */}
+                <div className="bg-gradient-to-r from-teal-50 to-blue-50 rounded-xl p-6 border border-teal-100">
+                  <div className="flex items-center gap-3 mb-4">
+                    <Shield className="w-6 h-6 text-teal-600" />
+                    <h3 className="text-lg font-bold text-gray-900">Science-Backed Safety</h3>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                    <div className="flex items-start gap-2">
+                      <Droplet className="w-5 h-5 text-teal-500 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <div className="font-semibold text-gray-900">AI-Powered Analysis</div>
+                        <div className="text-gray-600">Machine learning detects harm patterns</div>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Users className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <div className="font-semibold text-gray-900">Community Verified</div>
+                        <div className="text-gray-600">Real reports from real people</div>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Activity className="w-5 h-5 text-purple-500 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <div className="font-semibold text-gray-900">Real-Time Updates</div>
+                        <div className="text-gray-600">Risk scores update continuously</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Check Trend Tab */}
+            {activeTab === 'check' && (
+              <div className="space-y-4">
+                <div className="bg-white rounded-xl p-6 shadow-sm">
+                  <h2 className="text-lg font-semibold mb-4">Check a Beauty Trend</h2>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={checkInput}
+                      onChange={(e) => setCheckInput(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && handleCheckTrend()}
+                      placeholder="Paste TikTok link or trend name..."
+                      className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                    <button
+                      onClick={handleCheckTrend}
+                      className="px-6 py-3 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
+                    >
+                      <Search className="w-5 h-5" />
+                    </button>
+                  </div>
+                  <p className="text-sm text-gray-500 mt-2">
+                    Examples: "retinol vitamin C", "ice facial", "DIY chemical peel"
+                  </p>
+                </div>
+
+                {selectedTrend && (
+                  <div className={`border-2 rounded-xl p-6 ${getRiskColor(selectedTrend.status)}`}>
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-10 h-10 bg-white bg-opacity-50 rounded-lg flex items-center justify-center">
+                            {getProductIcon(selectedTrend.icon)}
+                          </div>
+                          {getRiskIcon(selectedTrend.status)}
+                          <h3 className="text-xl font-bold">{selectedTrend.name}</h3>
+                        </div>
+                        <p className="text-sm opacity-80">{selectedTrend.description}</p>
+                      </div>
+                      <div className="text-right ml-4">
+                        <div className="text-3xl font-bold">{selectedTrend.riskScore}</div>
+                        <div className="text-xs uppercase font-semibold">{selectedTrend.status}</div>
+                      </div>
+                    </div>
+
+                    {selectedTrend.commonSymptoms.length > 0 && (
+                      <div className="mb-4">
+                        <h4 className="font-semibold mb-2">Common Symptoms Reported:</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedTrend.commonSymptoms.map((symptom, idx) => (
+                            <span
+                              key={idx}
+                              className="px-3 py-1 bg-white bg-opacity-60 rounded-full text-sm"
+                            >
+                              {symptom}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="bg-white bg-opacity-60 rounded-lg p-4">
+                      <h4 className="font-semibold mb-2">💡 Recommendations:</h4>
+                      <p className="text-sm">{selectedTrend.recommendations}</p>
+                    </div>
+
+                    <div className="mt-4 text-sm opacity-75">
+                      {selectedTrend.reports} community reports • Updated {selectedTrend.lastUpdated}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Report Reaction Tab */}
+            {activeTab === 'report' && (
+              <div className="bg-white rounded-xl p-6 shadow-sm space-y-4">
+                <h2 className="text-lg font-semibold">Report a Skin Reaction</h2>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Trend or Product Name</label>
+                  <input
+                    type="text"
+                    value={reportForm.trendName}
+                    onChange={(e) => setReportForm(prev => ({ ...prev, trendName: e.target.value }))}
+                    placeholder="e.g., DIY Vitamin C Serum"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Brand (optional)</label>
+                  <input
+                    type="text"
+                    value={reportForm.brandName}
+                    onChange={(e) => setReportForm(prev => ({ ...prev, brandName: e.target.value }))}
+                    placeholder="e.g., The Ordinary, CeraVe"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Symptoms (select all that apply)
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {symptomOptions.map(symptom => (
+                      <button
+                        key={symptom}
+                        onClick={() => handleSymptomToggle(symptom)}
+                        type="button"
+                        className={`px-3 py-2 rounded-lg text-sm transition-colors ${
+                          reportForm.symptoms.includes(symptom)
+                            ? 'bg-purple-500 text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        {symptom}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Severity</label>
+                  <div className="flex gap-2">
+                    {['mild', 'moderate', 'severe'].map(level => (
+                      <button
+                        key={level}
+                        type="button"
+                        onClick={() => setReportForm(prev => ({ ...prev, severity: level }))}
+                        className={`flex-1 py-2 rounded-lg capitalize transition-colors ${
+                          reportForm.severity === level
+                            ? level === 'severe'
+                              ? 'bg-red-500 text-white'
+                              : level === 'moderate'
+                              ? 'bg-yellow-500 text-white'
+                              : 'bg-green-500 text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        {level}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Additional Details (optional)
+                  </label>
+                  <textarea
+                    value={reportForm.description}
+                    onChange={(e) => setReportForm(prev => ({ ...prev, description: e.target.value }))}
+                    placeholder="Describe your experience, when it started, etc."
+                    rows={4}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+
+                <button
+                  onClick={handleSubmitReport}
+                  disabled={!reportForm.trendName || reportForm.symptoms.length === 0}
+                  className="w-full py-3 bg-purple-500 text-white rounded-lg hover:bg-purple-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                >
+                  <Send className="w-5 h-5" />
+                  Submit Report
+                </button>
+
+                <p className="text-xs text-gray-500 text-center">
+                  Your report is anonymous and helps protect the community
+                </p>
+              </div>
+            )}
+
+            {/* All Trends Tab */}
+            {activeTab === 'trends' && (
+              <div className="space-y-3">
+                <div className="bg-white rounded-xl p-4 shadow-sm">
+                  <h2 className="text-lg font-semibold mb-2">Trending Now</h2>
+                  <p className="text-sm text-gray-600">
+                    Real-time risk scores based on{' '}
+                    {trends.reduce((sum, t) => sum + t.reports, 0)} community reports
+                  </p>
+                </div>
+
+                {[...trends].sort((a, b) => b.riskScore - a.riskScore).map(trend => (
+                  <div
+                    key={trend.id}
+                    onClick={() => {
+                      setSelectedTrend(trend);
+                      setActiveTab('check');
+                    }}
+                    className={`border-2 rounded-xl p-4 cursor-pointer hover:shadow-md transition-all ${getRiskColor(trend.status)}`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3 flex-1">
+                        <div className="w-10 h-10 bg-white bg-opacity-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                          {getProductIcon(trend.icon)}
+                        </div>
+                        {getRiskIcon(trend.status)}
+                        <div>
+                          <h3 className="font-semibold">{trend.name}</h3>
+                          <p className="text-xs opacity-75">
+                            {trend.brandName} • {trend.reports} reports • {trend.lastUpdated}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold">{trend.riskScore}</div>
+                        <div className="text-xs uppercase font-semibold">{trend.status}</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Brands Tab */}
+            {activeTab === 'brands' && (
+              <div className="space-y-3">
+                <div className="bg-white rounded-xl p-4 shadow-sm">
+                  <h2 className="text-lg font-semibold mb-2">Cosmetic Brands</h2>
+                  <p className="text-sm text-gray-600">
+                    Click on any brand to see associated trends and risk scores
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {[...brands].sort((a, b) => b.avgRiskScore - a.avgRiskScore).map(brand => (
+                    <div
+                      key={brand.id}
+                      onClick={() => handleBrandClick(brand)}
+                      className={`border-2 rounded-xl p-5 cursor-pointer hover:shadow-lg transition-all ${getRiskColor(brand.status)}`}
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <div className="text-3xl">{brand.logo}</div>
+                          <div>
+                            <h3 className="font-bold text-lg">{brand.name}</h3>
+                            <p className="text-xs opacity-75">{brand.trendCount} tracked trends</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-2xl font-bold">{brand.avgRiskScore}</div>
+                          <div className="text-xs uppercase font-semibold">{brand.status}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="opacity-75">{brand.totalReports} total reports</span>
+                        <span className="font-medium">View trends →</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Brand Detail Tab */}
+            {activeTab === 'brand-detail' && selectedBrand && (
+              <div className="space-y-3">
+                <div className={`border-2 rounded-xl p-6 shadow-sm ${getRiskColor(selectedBrand.status)}`}>
+                  <button
+                    onClick={() => setActiveTab('brands')}
+                    className="text-sm mb-4 opacity-75 hover:opacity-100"
+                  >
+                    ← Back to Brands
+                  </button>
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="text-5xl">{selectedBrand.logo}</div>
+                      <div>
+                        <h2 className="text-2xl font-bold mb-1">{selectedBrand.name}</h2>
+                        <p className="text-sm opacity-80">
+                          {selectedBrand.trendCount} tracked trends • {selectedBrand.totalReports}{' '}
+                          community reports
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-4xl font-bold">{selectedBrand.avgRiskScore}</div>
+                      <div className="text-sm uppercase font-semibold">{selectedBrand.status}</div>
+                      <div className="text-xs mt-1 opacity-75">Avg Risk Score</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-xl p-4 shadow-sm">
+                  <h3 className="font-semibold mb-2">Trends for {selectedBrand.name}</h3>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Real-time risk assessment based on community reports
+                  </p>
+                </div>
+
+                {getBrandTrends(selectedBrand.id).length > 0 ? (
+                  getBrandTrends(selectedBrand.id)
+                    .sort((a, b) => b.riskScore - a.riskScore)
+                    .map(trend => (
+                      <div
+                        key={trend.id}
+                        onClick={() => {
+                          setSelectedTrend(trend);
+                          setActiveTab('check');
+                        }}
+                        className={`border-2 rounded-xl p-4 cursor-pointer hover:shadow-md transition-all ${getRiskColor(trend.status)}`}
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-3 flex-1">
+                            <div className="w-10 h-10 bg-white bg-opacity-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                              {getProductIcon(trend.icon)}
+                            </div>
+                            {getRiskIcon(trend.status)}
+                            <div>
+                              <h3 className="font-semibold">{trend.name}</h3>
+                              <p className="text-xs opacity-75">
+                                {trend.reports} reports • {trend.lastUpdated}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-2xl font-bold">{trend.riskScore}</div>
+                            <div className="text-xs uppercase font-semibold">{trend.status}</div>
+                          </div>
+                        </div>
+                        <p className="text-sm opacity-90">{trend.description}</p>
+                      </div>
+                    ))
+                ) : (
+                  <div className="bg-white rounded-xl p-8 text-center shadow-sm">
+                    <p className="text-gray-500">No trends tracked for this brand yet</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<CosmoCheckApp />);
+  </script>
+</body>
+</html>
