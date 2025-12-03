@@ -1,3 +1,16 @@
+Cosmo-Check: Digital Epidemiology Prototype
+
+Cosmo-Check is a browser-based prototype that detects early-warning signs of cosmetic-related skin harm using digital epidemiology principles, trend analysis, and user-submitted incident reporting.
+
+🔗 Live App  
+Run the full application here:  
+➡️ https://aishwaryaarizona.github.io/HW3-Digital-Epidemiology/
+
+📄 How to Run Locally  
+Download or clone this repository.
+
+Code of the app is as below : 
+
 html_content = r"""<!DOCTYPE html>
 <html lang="en">
 <head>
