@@ -11,8 +11,6 @@ Download or clone this repository.
 
 Code of the app is as below : 
 
-html_content = r"""<!DOCTYPE html>
-<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>Cosmo-Check</title>
